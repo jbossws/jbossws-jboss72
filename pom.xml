@@ -35,13 +35,13 @@
   <description>JBossWS JBoss AS 7.2.0.Final Integration Parent</description>
   <groupId>org.jboss.ws</groupId>
   <artifactId>jbossws-jboss720-parent</artifactId>
-  <version>4.2.0.Alpha1</version>
+  <version>4.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossws/container/jboss72/tags/jbossws-jboss720-4.2.0.Alpha1</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossws/container/jboss72/tags/jbossws-jboss720-4.2.0.Alpha1</developerConnection>
-    <url>http://fisheye.jboss.com/viewrep/JBossWS/container/jboss72/tags/jbossws-jboss720-4.2.0.Alpha1</url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossws/container/jboss72/branches/jbossws-jboss720</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossws/container/jboss72/branches/jbossws-jboss720</developerConnection>
+    <url>http://fisheye.jboss.com/viewrep/JBossWS/container/jboss72/branches/jbossws-jboss720</url>
   </scm>
 
   <modules>
