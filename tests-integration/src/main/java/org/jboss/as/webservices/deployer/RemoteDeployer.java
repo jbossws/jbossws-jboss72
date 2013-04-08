@@ -95,6 +95,7 @@ public final class RemoteDeployer implements Deployer {
     private static final String JBWS_DEPLOYER_AUTH_USER = "jbossws.deployer.authentication.username";
     private static final String JBWS_DEPLOYER_AUTH_PWD = "jbossws.deployer.authentication.password";
     private static final CallbackHandler callbackHandler = getCallbackHandler();
+    private static final int TIMEOUT = 60000;
     private static InetAddress address;
     private static Integer port;
     private final Map<URL, String> url2Id = new HashMap<URL, String>();
@@ -124,12 +125,13 @@ public final class RemoteDeployer implements Deployer {
             } else {
                 archiveCounters.put(k, 1);
             }
-            final ServerDeploymentManager deploymentManager = newDeploymentManager();
+            final ModelControllerClient client = newModelControllerClient();
+            final ServerDeploymentManager deploymentManager = newDeploymentManager(client);
             final DeploymentPlanBuilder builder = deploymentManager.newDeploymentPlan().add(archiveURL).andDeploy();
             final DeploymentPlan plan = builder.build();
             final DeploymentAction deployAction = builder.getLastAction();
             final String uniqueId = deployAction.getDeploymentUnitUniqueName();
-            executeDeploymentPlan(plan, deployAction, deploymentManager);
+            executeDeploymentPlan(plan, deployAction, client, deploymentManager);
             url2Id.put(archiveURL, uniqueId);
         }
     }
@@ -150,14 +152,15 @@ public final class RemoteDeployer implements Deployer {
                 LOGGER.warn("Trying to undeploy archive " + archiveURL + " which is not currently deployed!");
                 return;
             }
-            final ServerDeploymentManager deploymentManager = newDeploymentManager();
+            final ModelControllerClient client = newModelControllerClient();
+            final ServerDeploymentManager deploymentManager = newDeploymentManager(client);
             final DeploymentPlanBuilder builder = deploymentManager.newDeploymentPlan();
             final String uniqueName = url2Id.get(archiveURL);
             if (uniqueName != null) {
                 final DeploymentPlan plan = builder.undeploy(uniqueName).remove(uniqueName).build();
                 final DeploymentAction deployAction = builder.getLastAction();
                 try {
-                    executeDeploymentPlan(plan, deployAction, deploymentManager);
+                    executeDeploymentPlan(plan, deployAction, client, deploymentManager);
                 } finally {
                     url2Id.remove(archiveURL);
                 }
@@ -166,7 +169,7 @@ public final class RemoteDeployer implements Deployer {
     }
 
     private void executeDeploymentPlan(final DeploymentPlan plan, final DeploymentAction deployAction,
-            final ServerDeploymentManager deploymentManager) throws Exception {
+            final ModelControllerClient client, final ServerDeploymentManager deploymentManager) throws Exception {
         try {
             final ServerDeploymentPlanResult planResult = deploymentManager.execute(plan).get();
 
@@ -182,6 +185,7 @@ public final class RemoteDeployer implements Deployer {
             LOGGER.fatal(e.getMessage(), e);
             throw e;
         } finally {
+            client.close();
             deploymentManager.close();
         }
     }
@@ -378,11 +382,12 @@ public final class RemoteDeployer implements Deployer {
         return AccessController.doPrivileged(action);
     }
 
-    private static ModelControllerClient newModelControllerClient() {
-        return ModelControllerClient.Factory.create(address, port, callbackHandler);
+    private static ModelControllerClient newModelControllerClient() throws Exception {
+        return ModelControllerClient.Factory.create(address.getHostAddress(), port, callbackHandler, null, TIMEOUT);
     }
 
-    private static ServerDeploymentManager newDeploymentManager() {
-        return ServerDeploymentManager.Factory.create(address, port, callbackHandler);
+    private static ServerDeploymentManager newDeploymentManager(ModelControllerClient client) throws Exception {
+        return ServerDeploymentManager.Factory.create(client);
     }
 }
+
