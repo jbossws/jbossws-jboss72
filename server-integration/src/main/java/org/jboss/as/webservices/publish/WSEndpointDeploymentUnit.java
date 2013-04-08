@@ -35,6 +35,7 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
+import org.jboss.wsf.spi.metadata.webservices.JBossWebservicesMetaData;
 import org.jboss.wsf.spi.metadata.webservices.WebservicesMetaData;
 
 public class WSEndpointDeploymentUnit extends SimpleAttachable implements DeploymentUnit {
@@ -42,32 +43,35 @@ public class WSEndpointDeploymentUnit extends SimpleAttachable implements Deploy
     private String deploymentName;
 
     public WSEndpointDeploymentUnit(ClassLoader loader, String context, Map<String,String> urlPatternToClassName, WebservicesMetaData metadata) {
-        this(loader, context, urlPatternToClassName, new JBossWebMetaData(), metadata);
-    }
+       this(loader, context, urlPatternToClassName, new JBossWebMetaData(), metadata, null);
+   }
 
-    public WSEndpointDeploymentUnit(ClassLoader loader, String context, Map<String, String> urlPatternToClassName,
-            JBossWebMetaData jbossWebMetaData, WebservicesMetaData metadata) {
-        this.deploymentName = context + ".deployment";
+   public WSEndpointDeploymentUnit(ClassLoader loader, String context, Map<String, String> urlPatternToClassName,
+           JBossWebMetaData jbossWebMetaData, WebservicesMetaData metadata, JBossWebservicesMetaData jbwsMetaData) {
+       this.deploymentName = context + ".deployment";
 
-        JAXWSDeployment jaxwsDeployment = new JAXWSDeployment();
-        if (jbossWebMetaData == null) {
-            jbossWebMetaData = new JBossWebMetaData();
-        }
-        jbossWebMetaData.setContextRoot(context);
-        String endpointName = null;
-        String className = null;
-        for (String urlPattern : urlPatternToClassName.keySet()) {
-            className = urlPatternToClassName.get(urlPattern);
-            endpointName = getShortName(className, urlPattern);
-            addEndpoint(jbossWebMetaData, jaxwsDeployment, endpointName, className, urlPattern);
-        }
-        this.putAttachment(WSAttachmentKeys.CLASSLOADER_KEY, loader);
-        this.putAttachment(WSAttachmentKeys.JAXWS_ENDPOINTS_KEY, jaxwsDeployment);
-        this.putAttachment(WSAttachmentKeys.JBOSSWEB_METADATA_KEY, jbossWebMetaData);
-        if (metadata != null) {
-            this.putAttachment(WSAttachmentKeys.WEBSERVICES_METADATA_KEY, metadata);
-        }
-    }
+       JAXWSDeployment jaxwsDeployment = new JAXWSDeployment();
+       if (jbossWebMetaData == null) {
+           jbossWebMetaData = new JBossWebMetaData();
+       }
+       jbossWebMetaData.setContextRoot(context);
+       String endpointName = null;
+       String className = null;
+       for (String urlPattern : urlPatternToClassName.keySet()) {
+           className = urlPatternToClassName.get(urlPattern);
+           endpointName = getShortName(className, urlPattern);
+           addEndpoint(jbossWebMetaData, jaxwsDeployment, endpointName, className, urlPattern);
+       }
+       this.putAttachment(WSAttachmentKeys.CLASSLOADER_KEY, loader);
+       this.putAttachment(WSAttachmentKeys.JAXWS_ENDPOINTS_KEY, jaxwsDeployment);
+       this.putAttachment(WSAttachmentKeys.JBOSSWEB_METADATA_KEY, jbossWebMetaData);
+       if (metadata != null) {
+           this.putAttachment(WSAttachmentKeys.WEBSERVICES_METADATA_KEY, metadata);
+       }
+       if (jbwsMetaData != null) {
+           this.putAttachment(WSAttachmentKeys.JBOSS_WEBSERVICES_METADATA_KEY, jbwsMetaData);
+       }
+   }
 
     private String getShortName(String className, String urlPattern) {
         final StringTokenizer st = new StringTokenizer(urlPattern, "/*");
@@ -95,6 +99,7 @@ public class WSEndpointDeploymentUnit extends SimpleAttachable implements Deploy
             }
         }
         jaxwsDeployment.addEndpoint(new POJOEndpoint(endpointName, className, null, urlPattern, false));
+                                   
     }
 
     @Override
