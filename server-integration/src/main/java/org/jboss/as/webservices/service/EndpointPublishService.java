@@ -122,7 +122,6 @@ public final class EndpointPublishService implements Service<Context> {
       final EndpointPublishService service = new EndpointPublishService(context, loader, urlPatternToClassName, jbwmd, wsmd, jbwsmd);
       final ServiceBuilder<Context> builder = serviceTarget.addService(service.getName(), service);
       builder.addDependency(DependencyType.REQUIRED, WSServices.CONFIG_SERVICE);
-      builder.addDependency(DependencyType.REQUIRED, WSServices.REGISTRY_SERVICE);
       builder.addDependency(WebSubsystemServices.JBOSS_WEB_HOST.append(hostName), VirtualHost.class, service.getHostInjector());
       return builder;
    }
