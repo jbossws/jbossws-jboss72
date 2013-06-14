@@ -106,11 +106,13 @@ public final class EndpointService implements Service<Endpoint> {
            registerRecordProcessor(processor, endpoint);
         }
         registerEndpoint(endpoint);
+        endpoint.getLifecycleHandler().start(endpoint);
     }
 
     @Override
     public void stop(final StopContext context) {
         ROOT_LOGGER.stopping(name);
+        endpoint.getLifecycleHandler().stop(endpoint);
         endpoint.setSecurityDomainContext(null);
         if (hasWebservicesMD(endpoint)) {
             pclWebAppControllerValue.getValue().decrementUsers();
