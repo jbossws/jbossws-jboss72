@@ -27,11 +27,9 @@ import static org.jboss.ws.common.integration.WSHelper.getRequiredAttachment;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.webservices.service.EndpointService;
 import org.jboss.msc.service.ServiceTarget;
-import org.jboss.ws.common.deployment.EndpointLifecycleDeploymentAspect;
 import org.jboss.ws.common.integration.AbstractDeploymentAspect;
 import org.jboss.wsf.spi.deployment.Deployment;
 import org.jboss.wsf.spi.deployment.Endpoint;
-import org.jboss.wsf.spi.deployment.LifecycleHandler;
 
 /**
  * Creates Endpoint Service instance when starting the Endpoint
