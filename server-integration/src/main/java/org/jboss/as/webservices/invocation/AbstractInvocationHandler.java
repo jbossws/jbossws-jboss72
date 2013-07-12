@@ -31,6 +31,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collection;
 
 import javax.management.MBeanException;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.jboss.as.ee.component.Component;
 import org.jboss.as.ee.component.ComponentView;
@@ -149,6 +150,11 @@ abstract class AbstractInvocationHandler extends org.jboss.ws.common.invocation.
          if (t instanceof InvocationTargetException) {
             throw (Exception) t;
          } else {
+            SOAPFaultException ex = findSoapFaultException(t);
+            if (ex != null)
+            {
+               throw new InvocationTargetException(ex);
+            }
             throw new InvocationTargetException(t);
          }
       }
@@ -156,6 +162,19 @@ abstract class AbstractInvocationHandler extends org.jboss.ws.common.invocation.
          throw (Error) t;
       }
       throw new UndeclaredThrowableException(t);
+   }
+   
+   protected SOAPFaultException findSoapFaultException(Throwable ex)
+   {
+      if (ex instanceof SOAPFaultException)
+      {
+         return (SOAPFaultException) ex;
+      }
+      if (ex.getCause() != null)
+      {
+         return findSoapFaultException(ex.getCause());
+      }
+      return null;
    }
 
    /**
