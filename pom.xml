@@ -35,7 +35,7 @@
   <description>JBossWS JBoss AS 7.2.0.Final Integration Parent</description>
   <groupId>org.jboss.ws</groupId>
   <artifactId>jbossws-jboss720-parent</artifactId>
-  <version>4.2.1-SNAPSHOT</version>
+  <version>4.2.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <scm>
@@ -51,8 +51,8 @@
 
   <properties>
     <jbossws.api.version>1.0.2.Beta1</jbossws.api.version>
-    <jbossws.spi.version>2.2.1-SNAPSHOT</jbossws.spi.version>
-    <jbossws.common.version>2.2.1-SNAPSHOT</jbossws.common.version>
+    <jbossws.spi.version>2.2.2.Final</jbossws.spi.version>
+    <jbossws.common.version>2.2.2.Final</jbossws.common.version>
     <jboss.msc.version>1.0.4.GA</jboss.msc.version>
     <jboss.version>7.2.0.Final</jboss.version>
     <jboss.jaxws.api.version>2.0.1.Final</jboss.jaxws.api.version>
