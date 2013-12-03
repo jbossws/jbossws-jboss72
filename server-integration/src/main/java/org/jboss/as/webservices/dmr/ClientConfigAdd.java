@@ -22,7 +22,7 @@
 package org.jboss.as.webservices.dmr;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.jboss.as.webservices.dmr.PackageUtils.getServerConfig;
+import static org.jboss.as.webservices.dmr.PackageUtils.getClientConfigServiceName;
 
 import java.util.List;
 
@@ -31,8 +31,14 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.webservices.service.ConfigService;
+import org.jboss.as.webservices.util.ASHelper;
+import org.jboss.as.webservices.util.WSServices;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceName;
+import org.jboss.msc.service.ServiceTarget;
 import org.jboss.wsf.spi.management.ServerConfig;
 import org.jboss.wsf.spi.metadata.config.ClientConfig;
 
@@ -62,18 +68,23 @@ final class ClientConfigAdd extends AbstractAddStepHandler {
 
     @Override
     protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model, final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers) throws OperationFailedException {
-        final ServerConfig config = getServerConfig(context);
-        if (config != null) {
-            final PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
-            final String name = address.getLastElement().getValue();
+      //modify the runtime if we're booting, otherwise set reload required and leave the runtime unchanged
+      if (context.isBooting()) {
+         final PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
+         final String name = address.getLastElement().getValue();
+         //get the server config object from the ServerConfigService (service installed and not started yet, but the object is fine for our needs here)
+         final ServerConfig serverConfig = ASHelper.getMSCService(WSServices.CONFIG_SERVICE, ServerConfig.class, context);
+         final ServiceName serviceName = getClientConfigServiceName(name);
+         final ConfigService clientConfigService = new ConfigService(serverConfig, name, true);
+         final ServiceTarget target = context.getServiceTarget();
+         final ServiceBuilder<?> clientServiceBuilder = target.addService(serviceName, clientConfigService);
 
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.setConfigName(name);
-            config.addClientConfig(clientConfig);
-            if (!context.isBooting()) {
-                context.reloadRequired();
-            }
-        }
+         ServiceController<?> controller = clientServiceBuilder.setInitialMode(ServiceController.Mode.ACTIVE).install();
+         if (newControllers != null) {
+             newControllers.add(controller);
+         }
+      } else {
+         context.reloadRequired();
+      }
     }
-
 }
