@@ -30,6 +30,7 @@ import javax.management.MBeanServer;
 
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.security.service.SecurityDomainService;
+import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.webservices.security.SecurityDomainContextAdaptor;
 import org.jboss.as.webservices.util.WSServices;
@@ -230,6 +231,9 @@ public final class EndpointService implements Service<Endpoint> {
         builder.addDependency(DependencyType.REQUIRED, WSServices.CONFIG_SERVICE);
         builder.setInitialMode(Mode.ACTIVE);
         builder.install();
+        //add a dependency on the endpoint service to web deployments, so that the
+        //endpoint servlet is not started before the endpoint is actually available
+        unit.addToAttachmentList(Attachments.WEB_DEPENDENCIES, serviceName);
     }
 
     public static void uninstall(final Endpoint endpoint, final DeploymentUnit unit) {
