@@ -114,8 +114,9 @@ abstract class AbstractInvocationHandler extends org.jboss.ws.common.invocation.
          }
          // prepare invocation data
          final ComponentView componentView = getComponentView();
-         if (reference != null) {
-             ((WSComponent)componentView.getComponent()).setReference(reference);
+         Component component = componentView.getComponent();
+         if (reference != null && component instanceof WSComponent) {
+             ((WSComponent)component).setReference(reference);
          }
          final Method method = getComponentViewMethod(wsInvocation.getJavaMethod(), componentView.getViewMethods());
          final InterceptorContext context = new InterceptorContext();
@@ -123,7 +124,7 @@ abstract class AbstractInvocationHandler extends org.jboss.ws.common.invocation.
          context.setMethod(method);
          context.setParameters(wsInvocation.getArgs());
          context.setTarget(reference.getInstance());
-         context.putPrivateData(Component.class, componentView.getComponent());
+         context.putPrivateData(Component.class, component);
          context.putPrivateData(ComponentView.class, componentView);
          // invoke method
          final Object retObj = componentView.invoke(context);
