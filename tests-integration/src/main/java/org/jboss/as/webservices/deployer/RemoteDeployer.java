@@ -389,5 +389,11 @@ public final class RemoteDeployer implements Deployer {
     private static ServerDeploymentManager newDeploymentManager(ModelControllerClient client) throws Exception {
         return ServerDeploymentManager.Factory.create(client);
     }
+
+    @Override
+    public void addJaspiSecurityDomain(String name, String loginModuleStackName, Map<String, String> loginModuleOptions,
+            String authModuleName, Map<String, String> authModuleOptions) throws Exception {
+        throw new UnsupportedOperationException("Jaspi authenticaiton is only supported after Wildfly-8.0.0.Final");
+    }
 }
 
