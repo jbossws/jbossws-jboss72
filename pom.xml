@@ -35,7 +35,7 @@
   <description>JBossWS JBoss AS 7.2.0.Final Integration Parent</description>
   <groupId>org.jboss.ws</groupId>
   <artifactId>jbossws-jboss720-parent</artifactId>
-  <version>4.3.0-SNAPSHOT</version>
+  <version>4.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <scm>
