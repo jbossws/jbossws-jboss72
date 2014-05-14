@@ -39,7 +39,7 @@ import org.jboss.wsf.spi.metadata.webservices.JBossWebservicesMetaData;
 final class MetaDataBuilderJAXRPC_EJB extends AbstractMetaDataBuilderEJB {
 
     @Override
-    protected void buildEnterpriseBeansMetaData(final Deployment dep, final EJBArchiveMetaData ejbArchiveMD) {
+    protected void buildEnterpriseBeansMetaData(final Deployment dep, final EJBArchiveMetaData.Builder ejbArchiveMDBuilder) {
         final List<EJBMetaData> wsEjbsMD = new LinkedList<EJBMetaData>();
         final JBossWebservicesMetaData jbossWebservicesMD = WSHelper.getOptionalAttachment(dep, JBossWebservicesMetaData.class);
         final JAXRPCDeployment jaxrpcDeployment = WSHelper.getRequiredAttachment(dep, JAXRPCDeployment.class);
@@ -48,7 +48,7 @@ final class MetaDataBuilderJAXRPC_EJB extends AbstractMetaDataBuilderEJB {
             buildEnterpriseBeanMetaData(wsEjbsMD, ejbEndpoint, jbossWebservicesMD);
         }
 
-        ejbArchiveMD.setEnterpriseBeans(wsEjbsMD);
+        ejbArchiveMDBuilder.setEnterpriseBeans(wsEjbsMD);
     }
 
 }

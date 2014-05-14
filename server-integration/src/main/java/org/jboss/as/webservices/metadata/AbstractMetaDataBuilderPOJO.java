@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2011, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2014, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -38,13 +38,11 @@ import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.SecurityConstraintMetaData;
 import org.jboss.metadata.web.spec.ServletMappingMetaData;
 import org.jboss.metadata.web.spec.WebResourceCollectionMetaData;
-import org.jboss.metadata.web.spec.WebResourceCollectionsMetaData;
 import org.jboss.ws.common.integration.WSConstants;
 import org.jboss.ws.common.integration.WSHelper;
 import org.jboss.wsf.spi.deployment.Deployment;
 import org.jboss.wsf.spi.metadata.j2ee.JSEArchiveMetaData;
 import org.jboss.wsf.spi.metadata.j2ee.JSESecurityMetaData;
-import org.jboss.wsf.spi.metadata.j2ee.JSESecurityMetaData.JSEResourceCollection;
 import org.jboss.wsf.spi.metadata.j2ee.PublishLocationAdapter;
 import org.jboss.wsf.spi.metadata.webservices.JBossWebservicesMetaData;
 
@@ -72,40 +70,40 @@ abstract class AbstractMetaDataBuilderPOJO {
         final JBossWebMetaData jbossWebMD = WSHelper.getRequiredAttachment(dep, JBossWebMetaData.class);
         final DeploymentUnit unit = WSHelper.getRequiredAttachment(dep, DeploymentUnit.class);
         final List<POJOEndpoint> pojoEndpoints = getPojoEndpoints(unit);
-        final JSEArchiveMetaData jseArchiveMD = new JSEArchiveMetaData();
+        final JSEArchiveMetaData.Builder jseArchiveMDBuilder = new JSEArchiveMetaData.Builder();
 
         // set context root
         final String contextRoot = getContextRoot(dep, jbossWebMD);
-        jseArchiveMD.setContextRoot(contextRoot);
+        jseArchiveMDBuilder.setContextRoot(contextRoot);
         ROOT_LOGGER.settingContextRoot(contextRoot);
 
         // set servlet url patterns mappings
         final Map<String, String> servletMappings = getServletUrlPatternsMappings(jbossWebMD, pojoEndpoints);
-        jseArchiveMD.setServletMappings(servletMappings);
+        jseArchiveMDBuilder.setServletMappings(servletMappings);
 
         // set servlet class names mappings
         final Map<String, String> servletClassNamesMappings = getServletClassMappings(jbossWebMD, pojoEndpoints);
-        jseArchiveMD.setServletClassNames(servletClassNamesMappings);
+        jseArchiveMDBuilder.setServletClassNames(servletClassNamesMappings);
 
         // set security domain
         final String securityDomain = jbossWebMD.getSecurityDomain();
-        jseArchiveMD.setSecurityDomain(securityDomain);
+        jseArchiveMDBuilder.setSecurityDomain(securityDomain);
 
         // set wsdl location resolver
         final JBossWebservicesMetaData jbossWebservicesMD = WSHelper.getOptionalAttachment(dep, JBossWebservicesMetaData.class);
         if (jbossWebservicesMD != null) {
             final PublishLocationAdapter resolver = new PublishLocationAdapterImpl(jbossWebservicesMD.getWebserviceDescriptions());
-            jseArchiveMD.setPublishLocationAdapter(resolver);
+            jseArchiveMDBuilder.setPublishLocationAdapter(resolver);
         }
 
         // set security meta data
         final List<JSESecurityMetaData> jseSecurityMDs = getSecurityMetaData(jbossWebMD.getSecurityConstraints());
-        jseArchiveMD.setSecurityMetaData(jseSecurityMDs);
+        jseArchiveMDBuilder.setSecurityMetaData(jseSecurityMDs);
 
         // set config name and file
-        setConfigNameAndFile(jseArchiveMD, jbossWebMD, jbossWebservicesMD);
+        setConfigNameAndFile(jseArchiveMDBuilder, jbossWebMD, jbossWebservicesMD);
 
-        return jseArchiveMD;
+        return jseArchiveMDBuilder.build();
     }
 
     protected abstract List<POJOEndpoint> getPojoEndpoints(final DeploymentUnit unit);
@@ -116,14 +114,14 @@ abstract class AbstractMetaDataBuilderPOJO {
      * @param jseArchiveMD universal JSE meta data model
      * @param jbossWebMD jboss web meta data
      */
-    private void setConfigNameAndFile(final JSEArchiveMetaData jseArchiveMD, final JBossWebMetaData jbossWebMD, final JBossWebservicesMetaData jbossWebservicesMD) {
+    private void setConfigNameAndFile(final JSEArchiveMetaData.Builder jseArchiveMDBuilder, final JBossWebMetaData jbossWebMD, final JBossWebservicesMetaData jbossWebservicesMD) {
         if (jbossWebservicesMD != null) {
            if (jbossWebservicesMD.getConfigName() != null) {
               final String configName = jbossWebservicesMD.getConfigName();
-              jseArchiveMD.setConfigName(configName);
+              jseArchiveMDBuilder.setConfigName(configName);
               ROOT_LOGGER.settingConfigName(configName);
               final String configFile = jbossWebservicesMD.getConfigFile();
-              jseArchiveMD.setConfigFile(configFile);
+              jseArchiveMDBuilder.setConfigFile(configFile);
               ROOT_LOGGER.settingConfigFile(configFile);
 
               // ensure higher priority against web.xml context parameters
@@ -136,12 +134,12 @@ abstract class AbstractMetaDataBuilderPOJO {
             for (final ParamValueMetaData contextParam : contextParams) {
                 if (WSConstants.JBOSSWS_CONFIG_NAME.equals(contextParam.getParamName())) {
                     final String configName = contextParam.getParamValue();
-                    jseArchiveMD.setConfigName(configName);
+                    jseArchiveMDBuilder.setConfigName(configName);
                     ROOT_LOGGER.settingConfigName(configName);
                 }
                 if (WSConstants.JBOSSWS_CONFIG_FILE.equals(contextParam.getParamName())) {
                     final String configFile = contextParam.getParamValue();
-                    jseArchiveMD.setConfigFile(configFile);
+                    jseArchiveMDBuilder.setConfigFile(configFile);
                     ROOT_LOGGER.settingConfigFile(configFile);
                 }
             }
@@ -159,37 +157,21 @@ abstract class AbstractMetaDataBuilderPOJO {
 
         if (securityConstraintsMD != null) {
             for (final SecurityConstraintMetaData securityConstraintMD : securityConstraintsMD) {
-                final JSESecurityMetaData jseSecurityMD = new JSESecurityMetaData();
+                final JSESecurityMetaData.Builder jseSecurityMDBuilder = new JSESecurityMetaData.Builder();
 
                 // transport guarantee
-                jseSecurityMD.setTransportGuarantee(securityConstraintMD.getTransportGuarantee().name());
-
+                jseSecurityMDBuilder.setTransportGuarantee(securityConstraintMD.getTransportGuarantee().name());
+                
                 // web resources
-                this.setWebResources(jseSecurityMD, securityConstraintMD);
+                for (final WebResourceCollectionMetaData webResourceMD : securityConstraintMD.getResourceCollections()) {
+                    jseSecurityMDBuilder.addWebResource(webResourceMD.getName(), webResourceMD.getUrlPatterns());
+                }
 
-                jseSecurityMDs.add(jseSecurityMD);
+                jseSecurityMDs.add(jseSecurityMDBuilder.build());
             }
         }
 
         return jseSecurityMDs;
-    }
-
-    /**
-     * Sets web resources in universal meta data model.
-     *
-     * @param jseSecurityMD universal JSE security meta data model
-     * @param securityConstraintMD security constraint meta data
-     */
-    private void setWebResources(final JSESecurityMetaData jseSecurityMD, final SecurityConstraintMetaData securityConstraintMD) {
-        final WebResourceCollectionsMetaData webResources = securityConstraintMD.getResourceCollections();
-
-        for (final WebResourceCollectionMetaData webResourceMD : webResources) {
-            final JSEResourceCollection jseResource = jseSecurityMD.addWebResource(webResourceMD.getName());
-
-            for (final String webResourceUrlPatterns : webResourceMD.getUrlPatterns()) {
-                jseResource.addPattern(webResourceUrlPatterns);
-            }
-        }
     }
 
     /**

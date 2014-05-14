@@ -82,8 +82,8 @@ public final class WSRefDDProcessor extends AbstractDeploymentDescriptorBindings
 
     private static UnifiedServiceRefMetaData getServiceRef(final DeploymentUnit unit, final ComponentDescription componentDescription, final ServiceReferenceMetaData serviceRefMD) throws DeploymentUnitProcessingException {
         // construct service ref
-        final UnifiedServiceRefMetaData serviceRefUMDM = new UnifiedServiceRefMetaData(getUnifiedVirtualFile(unit));
-        translate(serviceRefMD, serviceRefUMDM);
+        final UnifiedServiceRefMetaData serviceRefUMDM = translate(serviceRefMD);
+        serviceRefUMDM.setVfsRoot(getUnifiedVirtualFile(unit));
         processWSFeatures(unit, serviceRefMD.getInjectionTargets(), serviceRefUMDM);
         // register it
         final WSReferences wsRefRegistry = getWSRefRegistry(unit);

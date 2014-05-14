@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2011, Red Hat, Inc., and individual contributors
+ * Copyright 2014, Red Hat, Inc., and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -28,7 +28,6 @@ import static org.jboss.as.webservices.util.ASHelper.getWSRefRegistry;
 import static org.jboss.as.webservices.util.DotNames.WEB_SERVICE_REFS_ANNOTATION;
 import static org.jboss.as.webservices.util.DotNames.WEB_SERVICE_REF_ANNOTATION;
 import static org.jboss.as.webservices.webserviceref.WSRefUtils.processAnnotatedElement;
-import static org.jboss.as.webservices.webserviceref.WSRefUtils.processType;
 
 import java.lang.reflect.AccessibleObject;
 import java.util.List;
@@ -63,6 +62,8 @@ import org.jboss.jandex.MethodInfo;
 import org.jboss.modules.Module;
 import org.jboss.wsf.spi.deployment.UnifiedVirtualFile;
 import org.jboss.wsf.spi.metadata.j2ee.serviceref.UnifiedServiceRefMetaData;
+import org.jboss.wsf.spi.metadata.j2ee.serviceref.UnifiedServiceRefMetaDataBuilder;
+import org.jboss.wsf.spi.serviceref.ServiceRefType;
 
 /**
  * @WebServiceRef annotation processor.
@@ -195,8 +196,10 @@ public class WSRefAnnotationProcessor implements DeploymentUnitProcessor {
         final String cacheKey = getCacheKey(componentDescription, serviceRefName);
         UnifiedServiceRefMetaData serviceRefUMDM = wsRefRegistry.get(cacheKey);
         if (serviceRefUMDM == null) {
-            serviceRefUMDM = new UnifiedServiceRefMetaData(getUnifiedVirtualFile(unit));
-            serviceRefUMDM.setServiceRefName(serviceRefName);
+            UnifiedServiceRefMetaDataBuilder builder = new UnifiedServiceRefMetaDataBuilder();
+            builder.setVfsRoot(getUnifiedVirtualFile(unit));
+            builder.setServiceRefName(serviceRefName);
+            serviceRefUMDM = builder.build();
             wsRefRegistry.add(cacheKey, serviceRefUMDM);
         }
         return serviceRefUMDM;
@@ -253,7 +256,8 @@ public class WSRefAnnotationProcessor implements DeploymentUnitProcessor {
             serviceRefUMDM.setServiceInterface(Service.class.getName());
         }
         // ref type
-        processType(serviceRefUMDM);
+//        processType(serviceRefUMDM);
+        serviceRefUMDM.setType(ServiceRefType.JAXWS);
 
         return serviceRefUMDM;
     }
