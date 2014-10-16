@@ -291,6 +291,7 @@ public final class RemoteDeployer implements Deployer {
     public void removeHttpsConnector() throws Exception {
         try {
             ModelNode op = createOpNode("subsystem=web/connector=jbws-test-https-connector", REMOVE);
+            op.get(OPERATION_HEADERS).get(ALLOW_RESOURCE_SERVICE_RESTART).set(true);
             applyUpdate(op);
         } finally {
             httpsConnSemaphore.release();
