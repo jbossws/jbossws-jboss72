@@ -35,13 +35,13 @@
   <description>JBossWS JBoss AS 7.2.0.Final Integration Parent</description>
   <groupId>org.jboss.ws</groupId>
   <artifactId>jbossws-jboss720-parent</artifactId>
-  <version>4.3.2-SNAPSHOT</version>
+  <version>4.3.2.Final</version>
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossws/container/jboss72/tags/jbossws-jboss720-4.3.2-SNAPSHOT</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossws/container/jboss72/tags/jbossws-jboss720-4.3.2-SNAPSHOT</developerConnection>
-    <url>http://fisheye.jboss.com/viewrep/JBossWS/container/jboss72/tags/jbossws-jboss720-4.3.2-SNAPSHOT</url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossws/container/jboss72/tags/jbossws-jboss720-4.3.2.Final</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossws/container/jboss72/tags/jbossws-jboss720-4.3.2.Final</developerConnection>
+    <url>http://fisheye.jboss.com/viewrep/JBossWS/container/jboss72/tags/jbossws-jboss720-4.3.2.Final</url>
   </scm>
 
   <modules>
@@ -51,7 +51,7 @@
 
   <properties>
     <jbossws.api.version>1.0.2.Final</jbossws.api.version>
-    <jbossws.spi.version>2.3.1-SNAPSHOT</jbossws.spi.version>
+    <jbossws.spi.version>2.3.1.Final</jbossws.spi.version>
     <jbossws.common.version>2.3.0.Final</jbossws.common.version>
     <jboss.msc.version>1.0.4.GA</jboss.msc.version>
     <jboss.version>7.2.0.Final</jboss.version>

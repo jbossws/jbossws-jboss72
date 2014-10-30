@@ -29,7 +29,7 @@
   <parent>
     <groupId>org.jboss.ws</groupId>
     <artifactId>jbossws-jboss720-parent</artifactId>
-    <version>4.3.2-SNAPSHOT</version>
+    <version>4.3.2.Final</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
